@@ -261,35 +261,6 @@ components:
           type: string
         error:
           type: string
-    Token:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-        rri:
-          type: string
-        name:
-          type: string
-        symbol:
-          type: string
-        description:
-          type: string
-        iconURL:
-          type: string
-        tokenInfoURL:
-          type: string
-        heroImage:
-          type: string
-        isSupplyMutable:
-          type: boolean
-        supply:
-          type: number
-        aliases:
-          type: string
-        dateAdded:
-          type: string
-          format: date-time
     PoolDto:
       type: object
       properties:
