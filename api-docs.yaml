@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: DogeCubeX API Definition
-  version: v1
+  version: v1.1
   description: |
     The APIs described here are publicly available and are guaranteed to remain beckward-compatible for the next few months until Babylon.
 servers:
@@ -52,6 +52,31 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TokenDto'
+  /api/token-prices.json:
+    get:
+      tags:
+      - analytics-controller
+      operationId: getTokenPrices
+      parameters:
+      - name: symbols
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: currency
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPricesDto'
   /api/token-price.json:
     get:
       tags:
@@ -93,6 +118,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenDetailsDto'
+  /api/stats/trends.json:
+    get:
+      tags:
+      - short-stats-controller
+      operationId: getTokenTrends
+      parameters:
+      - name: symbol
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: currency
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsTrendsDto'
   /api/stakers.json:
     get:
       tags:
@@ -125,7 +173,7 @@ paths:
                 $ref: '#/components/schemas/StatusStringDto'
   /api/engine/status.json:
     get:
-      description: Same above but additionally returns Pooled Liquidity.
+      description: Same as above but additionally returns Pooled Liquidity.
       tags:
       - home-controller
       operationId: getEngineStatus2
@@ -200,6 +248,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AnalyticsSummaryDto'
+  /api/analytics/summary-v2.json:
+    get:
+      tags:
+      - analytics-controller
+      operationId: getSummaryV2
+      parameters:
+      - name: currency
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsSummaryV2Dto'
+  /api/accounts/stake.json:
+    get:
+      tags:
+      - account-controller
+      operationId: getAccountStakes
+      parameters:
+      - name: account
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakedAmountDto'
+  /api/accounts/info.json:
+    get:
+      tags:
+      - account-controller
+      operationId: getAccountInfo
+      parameters:
+      - name: account
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountInfoDto'
   /api/pools-info.json:
     get:
       tags:
@@ -318,10 +420,19 @@ components:
     TokenPriceDto:
       type: object
       properties:
+        symbol:
+          type: string
         priceXrd:
           type: number
         priceUsd:
           type: number
+    TokenPricesDto:
+      type: object
+      properties:
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/TokenPriceDto'
     TokenAnalyticsDto:
       type: object
       properties:
@@ -371,6 +482,31 @@ components:
           type: string
         iconUrl:
           type: string
+    StatsTrendsDto:
+      type: object
+      properties:
+        tokenName:
+          type: string
+        priceXrd:
+          type: number
+        priceUsd:
+          type: number
+        high24h:
+          type: number
+        low24h:
+          type: number
+        priceChange1h:
+          type: number
+        priceChange24h:
+          type: number
+        priceChange7d:
+          type: number
+        volume24h:
+          type: number
+        volume7d:
+          type: number
+        valuation:
+          type: number
     PairStringString:
       type: object
       properties:
@@ -451,3 +587,42 @@ components:
           format: int32
         volume:
           type: string
+    AnalyticsSummaryV2Dto:
+      type: object
+      properties:
+        day:
+          $ref: '#/components/schemas/SummaryStatsV2Dto'
+        week:
+          $ref: '#/components/schemas/SummaryStatsV2Dto'
+        total:
+          $ref: '#/components/schemas/SummaryStatsV2Dto'
+        liquidity:
+          type: number
+          format: double
+    SummaryStatsV2Dto:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int32
+        volume:
+          type: number
+          format: double
+    StakedAmountDto:
+      type: object
+      properties:
+        stake:
+          type: number
+          format: double
+        tradeLimit:
+          type: number
+          format: double
+    AccountInfoDto:
+      type: object
+      properties:
+        maxOrderSize:
+          type: number
+        balances:
+          type: object
+          additionalProperties:
+            type: string
