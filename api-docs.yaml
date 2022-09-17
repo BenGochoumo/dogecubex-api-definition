@@ -1,9 +1,9 @@
 openapi: 3.0.1
 info:
   title: DogeCubeX API Definition
-  version: v1.1
-  description: |
-    The APIs described here are publicly available and are guaranteed to remain beckward-compatible for the next few months until Babylon.
+  description: The APIs described here are publicly available and are guaranteed to
+    remain beckward-compatible for the next few months until Babylon.
+  version: v1.2
 servers:
 - url: https://dogecubex.live
   description: DogeCubeX
@@ -12,6 +12,8 @@ paths:
     post:
       tags:
       - swap-controller
+      description: Calculate the expected outcome of a swap. `from` and `to` - token
+        symbols or RRIs. Either `amountFrom` or `amountTo` is required.
       operationId: getQuote
       requestBody:
         content:
@@ -26,18 +28,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/QuoteDto'
-  /api/config.json:
-    get:
-      tags:
-      - config-controller
-      operationId: getConfig
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/AmmConfig'
   /api/tokens.json:
     get:
       tags:
@@ -153,6 +143,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StakersResponseDto'
+  /api/pools-liquidity.json:
+    get:
+      tags:
+      - swap-controller
+      operationId: getPoolsLiquidity
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PoolLiquidityDto'
+  /api/pools-info.json:
+    get:
+      tags:
+      - swap-controller
+      operationId: getPoolsInfo
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PoolInfoDto'
+  /api/engine/status.json:
+    get:
+      tags:
+      - home-controller
+      description: Same as above but additionally returns Pooled Liquidity.
+      operationId: getEngineStatus2
+      parameters:
+      - name: symbol
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusDto'
   /api/engine-status.json:
     get:
       tags:
@@ -171,25 +208,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusStringDto'
-  /api/engine/status.json:
+  /api/config.json:
     get:
-      description: Same as above but additionally returns Pooled Liquidity.
       tags:
-      - home-controller
-      operationId: getEngineStatus2
-      parameters:
-      - name: symbol
-        in: query
-        required: true
-        schema:
-          type: string
+      - config-controller
+      operationId: getConfig
       responses:
         "200":
           description: OK
           content:
-            application/json:
+            '*/*':
               schema:
-                $ref: '#/components/schemas/StatusDto'
+                $ref: '#/components/schemas/AmmConfig'
   /api/analytics/tokens.json:
     get:
       tags:
@@ -302,25 +332,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccountInfoDto'
-  /api/pools-info.json:
-    get:
-      tags:
-      - swap-controller
-      operationId: getPoolsInfo
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/PoolInfoDto'
   /api/Z3US/pools-info.json:
     get:
-      description: Same as `getPoolsInfo` but will return smaller Hero images (used by Z3US wallet).
       tags:
       - swap-controller
+      description: Same as `getPoolsInfo` but will return smaller Hero images (used
+        by Z3US wallet).
       operationId: getPoolsInfoZ3US
       responses:
         "200":
@@ -363,47 +380,6 @@ components:
           type: string
         error:
           type: string
-    PoolDto:
-      type: object
-      properties:
-        tokenA:
-          type: string
-        tokenB:
-          type: string
-        amountA:
-          type: string
-        amountB:
-          type: string
-    StatusDto:
-      type: object
-      properties:
-        status:
-          type: string
-        pool:
-          $ref: '#/components/schemas/PoolDto'
-    AmmConfig:
-      type: object
-      properties:
-        minOrderSize:
-          type: number
-        maxOrderSize:
-          type: number
-        stakingMaxOrders:
-          type: object
-          additionalProperties:
-            type: string
-        stakingOrderLimits:
-          type: object
-          additionalProperties:
-            type: number
-        stakerMaxOrderSize:
-          type: number
-        swapTransferFeeXrd:
-          type: number
-        swapRefundFeeXrd:
-          type: number
-        exchangeFee:
-          type: number
     TokenDto:
       type: object
       properties:
@@ -485,6 +461,8 @@ components:
     StatsTrendsDto:
       type: object
       properties:
+        symbol:
+          type: string
         tokenName:
           type: string
         priceXrd:
@@ -536,6 +514,15 @@ components:
             $ref: '#/components/schemas/PairStringString'
         defaultLimit:
           type: string
+    PoolLiquidityDto:
+      type: object
+      properties:
+        symbol:
+          type: string
+        liquidityA:
+          type: number
+        liquidityB:
+          type: number
     PoolInfoDto:
       type: object
       properties:
@@ -545,11 +532,52 @@ components:
           type: string
         heroImageUrl:
           type: string
+    PoolDto:
+      type: object
+      properties:
+        tokenA:
+          type: string
+        tokenB:
+          type: string
+        amountA:
+          type: string
+        amountB:
+          type: string
+    StatusDto:
+      type: object
+      properties:
+        status:
+          type: string
+        pool:
+          $ref: '#/components/schemas/PoolDto'
     StatusStringDto:
       type: object
       properties:
         status:
           type: string
+    AmmConfig:
+      type: object
+      properties:
+        minOrderSize:
+          type: number
+        maxOrderSize:
+          type: number
+        stakingMaxOrders:
+          type: object
+          additionalProperties:
+            type: string
+        stakingOrderLimits:
+          type: object
+          additionalProperties:
+            type: number
+        stakerMaxOrderSize:
+          type: number
+        swapTransferFeeXrd:
+          type: number
+        swapRefundFeeXrd:
+          type: number
+        exchangeFee:
+          type: number
     TokenSwapDto:
       type: object
       properties:
