@@ -240,6 +240,20 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TokenAnalyticsDto'
+  /api/analytics/tokens-summary.json:
+    get:
+      tags:
+      - analytics-controller
+      operationId: getTokensAnalyticsSummary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TokenAnalyticsSummaryDto'
   /api/analytics/swaps.json:
     get:
       tags:
@@ -465,6 +479,11 @@ components:
           type: string
         tokenName:
           type: string
+        currency:
+          type: string
+          enum:
+          - USD
+          - XRD
         priceXrd:
           type: number
         priceUsd:
@@ -577,6 +596,17 @@ components:
         swapRefundFeeXrd:
           type: number
         exchangeFee:
+          type: number
+    TokenAnalyticsSummaryDto:
+      type: object
+      properties:
+        rri:
+          type: string
+        price:
+          type: number
+        volumeUsd24h:
+          type: number
+        volumeXrd24h:
           type: number
     TokenSwapDto:
       type: object
